@@ -9,15 +9,22 @@
 import Foundation
 
 
+protocol WeatherManagerDelegate {
+    func didUpdateWeather(_ weatherManager: WeatherManager,weather: WeatherModel)
+    func didFailWithError(error:Error)
+}
+
 struct WeatherManager {
     let weatherUrl = "https://api.openweathermap.org/data/2.5/weather?appid=908eafbc4e8644b65ae61d6e9e993330&units=metric"
     
+    var delegate:WeatherManagerDelegate?
+    
     func fetchWeather(city:String){
         let url = "\(weatherUrl)&q=\(city)"
-        performRequest(urlString: url)
+        performRequest(with: url)
     }
     
-    func performRequest(urlString:String){
+    func performRequest(with urlString:String){
         // create a URL
         if let url = URL(string: urlString){
             // create a urlSession
@@ -31,14 +38,12 @@ struct WeatherManager {
                 
                 if let safeData = data {
                     if let weather = self.parseJSON(weatherData: safeData) {
-                        let weatherVC = WeatherViewController()
-                        weatherVC.didUpdateWeather(weather: weather)
+                        self.delegate?.didUpdateWeather(self,weather: weather)
                     }
                 }
             }
             
             // start the task
-            
             task.resume()
         }
     }
