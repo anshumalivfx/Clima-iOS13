@@ -19,9 +19,16 @@ struct WeatherManager {
     
     var delegate:WeatherManagerDelegate?
     
-    func fetchWeather(city:String){
-        let url = "\(weatherUrl)&q=\(city)"
-        performRequest(with: url)
+    func fetchWeather(city:String = "", lat:Double=0.0, lon:Double=0.0){
+        if(!city.isEmpty){
+            let url = "\(weatherUrl)&q=\(city)"
+            performRequest(with: url)
+        }
+        else{
+            let url = "\(weatherUrl)&lat=\(lat)&lon=\(lon)"
+            performRequest(with: url)
+        }
+        
     }
     
     func performRequest(with urlString:String){

@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  Clima
-//
-//  Created by Angela Yu on 01/09/2019.
-//  Copyright © 2019 App Brewery. All rights reserved.
-//
 
 import UIKit
 import CoreLocation
@@ -19,16 +12,25 @@ class WeatherViewController: UIViewController {
     var weatherManager = WeatherManager()
     var locationManager = CLLocationManager()
     
+   
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
+        locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestLocation()
+        
         weatherManager.delegate = self
         searchTextFeild.delegate = self
     }
+    
+    @IBAction func getLocationTemp(_ sender: Any) {
+        
+        self.locationManager.startUpdatingLocation()
+    }
+    
 }
 //MARK: - UITextFieldDelegate Section
 
@@ -69,8 +71,9 @@ extension WeatherViewController: UITextFieldDelegate {
 //MARK: - WeatherManagerDelegate Section
 
 extension WeatherViewController:WeatherManagerDelegate {
+    
+    
     func didUpdateWeather(_ weatherManager: WeatherManager,weather: WeatherModel){
-        
         DispatchQueue.main.async {
             self.temperatureLabel.text = weather.tempStr
             self.conditionImageView.image = UIImage(systemName: weather.conditionName)
@@ -85,9 +88,19 @@ extension WeatherViewController:WeatherManagerDelegate {
 //MARK: - LocationDelagate
 
 extension WeatherViewController:CLLocationManagerDelegate {
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            let lat = location.coordinate.latitude
+            let lon = location.coordinate.longitude
+            weatherManager.fetchWeather(lat: lat, lon: lon)
+            
+        }
         
     }
     
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+    }
     
 }
